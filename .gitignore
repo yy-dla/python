@@ -1,0 +1,8 @@
+/venv/
+/.ipynb_checkpoints/
+/hex/
+/model/
+/ssd/__pycache__/
+/.idea/
+
+*.pkl
