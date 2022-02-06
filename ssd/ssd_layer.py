@@ -1,8 +1,8 @@
 """Some special pupropse layers for SSD."""
 
-import keras.backend as K
-from keras.engine.input_spec import InputSpec
-from keras.engine.base_layer import Layer
+import tensorflow.keras.backend as K
+from tensorflow.python.keras.engine.input_spec import InputSpec
+from tensorflow.python.keras.engine.base_layer import Layer
 # from keras import Input
 # from keras import layers
 import numpy as np
@@ -40,7 +40,7 @@ class Normalize(Layer):
         shape = (input_shape[self.axis],)
         init_gamma = self.scale * np.ones(shape)
         self.gamma = K.variable(init_gamma, name='{}_gamma'.format(self.name))
-        self.trainable_weights = [self.gamma]
+        self._trainable_weights = [self.gamma]
 
     def call(self, x, mask=None):
         output = K.l2_normalize(x, self.axis)

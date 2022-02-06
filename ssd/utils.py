@@ -1,7 +1,7 @@
 import numpy as np
 from random import shuffle
 from PIL import Image
-from keras.applications.imagenet_utils import preprocess_input
+from tensorflow.keras.applications.imagenet_utils import preprocess_input
 
 
 class GTSDB_dataset(object):
@@ -171,7 +171,7 @@ class Generator(object):
     def generate(self, train=True):
         while True:
             if train:
-                # shuffle(self.train_keys)
+                shuffle(self.train_keys)
                 keys = self.train_keys
             else:
                 shuffle(self.val_keys)
@@ -180,12 +180,15 @@ class Generator(object):
             targets = []
             for key in keys:
                 img_path = self.path_prefix + key
-                # img = Image.open(img_path).astype('float32')
+                img = Image.open(img_path)
                 y = self.gt[key].copy()
-                # if train and self.do_crop:
-                #     img, y = self.random_sized_crop(img, y)
-                # img = img.resize(self.image_size).astype('float32')
-                # if train:
+                if train and self.do_crop:
+                    pass
+                    # img, y = self.random_sized_crop(img, y)
+                img = img.resize((self.image_size[0], self.image_size[1]), Image.ANTIALIAS)
+
+                if train:
+                    pass
                     # shuffle(self.color_jitter)
                     # for jitter in self.color_jitter:
                     #     img = jitter(img)
@@ -196,12 +199,11 @@ class Generator(object):
                     # if self.vflip_prob > 0:
                     #     img, y = self.vertical_flip(img, y)
                 y = self.bbox_util.assign_boxes(y)
-                # inputs.append(img)
-                inputs.append(0)
+                inputs.append(np.asarray(img))
                 targets.append(y)
                 if len(targets) == self.batch_size:
-                    tmp_inp = np.array(inputs)
+                    tmp_inp = np.array(inputs, dtype=object)
                     tmp_targets = np.array(targets)
                     inputs = []
                     targets = []
-                    yield preprocess_input(tmp_inp), tmp_targets
+                    yield preprocess_input(tmp_inp, mode='tf'), tmp_targets

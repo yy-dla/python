@@ -24,6 +24,7 @@ class BBoxUtility(object):
         tf.compat.v1.disable_eager_execution()
         self.num_classes = num_classes
         self.priors = priors
+        # self.num_priors = 1692
         self.num_priors = 0 if priors is None else len(priors)
         self.overlap_threshold = overlap_threshold
         self._nms_thresh = nms_thresh
