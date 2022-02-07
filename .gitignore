@@ -4,7 +4,13 @@
 /model/
 /ssd/__pycache__/
 /.idea/
+/ssd_keras/img/
+/ssd_keras/logs/
+/ssd_keras/VOCdevkit/
+
+/ssd_keras/requirements.txt
 
 *.pkl
 *.h5
 *.hdf5
+*.jpg
