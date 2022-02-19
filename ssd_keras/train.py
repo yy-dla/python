@@ -35,7 +35,8 @@ if __name__ == "__main__":
     #--------------------------------------------------------#
     #   训练前一定要修改classes_path，使其对应自己的数据集
     #--------------------------------------------------------#
-    classes_path    = 'model_data/voc_classes.txt'
+    # classes_path    = 'model_data/voc_classes.txt'
+    classes_path    = 'model_data/GTSDB_classes.txt'
     #----------------------------------------------------------------------------------------------------------------------------#
     #   权值文件的下载请看README，可以通过网盘下载。模型的 预训练权重 对不同数据集是通用的，因为特征是通用的。
     #   模型的 预训练权重 比较重要的部分是 主干特征提取网络的权值部分，用于进行特征提取。
@@ -54,7 +55,10 @@ if __name__ == "__main__":
     #   网络一般不从0开始训练，至少会使用主干部分的权值，有些论文提到可以不用预训练，主要原因是他们 数据集较大 且 调参能力优秀。
     #   如果一定要训练网络的主干部分，可以了解imagenet数据集，首先训练分类模型，分类模型的 主干部分 和该模型通用，基于此进行训练。
     #----------------------------------------------------------------------------------------------------------------------------#
-    model_path      = '../model/mobilenet_ssd_weights.h5'
+    # model_path      = '../model/mobilenet_ssd_weights.h5'
+    model_path      = '../model/GTSDB/weights.09-0.02.hdf5'
+    # model_path      = ''
+
     #------------------------------------------------------#
     #   输入的shape大小
     #------------------------------------------------------#
@@ -79,8 +83,8 @@ if __name__ == "__main__":
     #   占用的显存较小，仅对网络进行微调
     #----------------------------------------------------#
     Init_Epoch          = 0
-    Freeze_Epoch        = 50
-    Freeze_batch_size   = 32
+    Freeze_Epoch        = 200
+    Freeze_batch_size   = 64
     Freeze_lr           = 5e-4
     #----------------------------------------------------#
     #   解冻阶段训练参数
@@ -93,7 +97,7 @@ if __name__ == "__main__":
     #------------------------------------------------------#
     #   是否进行冻结训练，默认先冻结主干训练后解冻训练。
     #------------------------------------------------------#
-    Freeze_Train        = True
+    Freeze_Train        = False
     #------------------------------------------------------#
     #   用于设置是否使用多线程读取数据，1代表关闭多线程
     #   开启后会加快数据读取速度，但是会占用更多内存
@@ -104,8 +108,12 @@ if __name__ == "__main__":
     #----------------------------------------------------#
     #   获得图片路径和标签
     #----------------------------------------------------#
-    train_annotation_path   = '2012_train.txt'
-    val_annotation_path     = '2012_val.txt'
+    # train_annotation_path   = '2012_train.txt'
+    # val_annotation_path     = '2012_val.txt'
+    # train_annotation_path = 'GTSDB_train.txt'
+    # val_annotation_path = 'GTSDB_val.txt'
+    train_annotation_path = 'train_gt.txt'
+    val_annotation_path = 'val_gt.txt'
 
     #----------------------------------------------------#
     #   获取classes和anchor
@@ -152,73 +160,74 @@ if __name__ == "__main__":
         for i in range(freeze_layers): model.layers[i].trainable = False
         print('Freeze the first {} layers of total {} layers.'.format(freeze_layers, len(model.layers)))
 
-    #------------------------------------------------------#
-    #   主干特征提取网络特征通用，冻结训练可以加快训练速度
-    #   也可以在训练初期防止权值被破坏。
-    #   Init_Epoch为起始世代
-    #   Freeze_Epoch为冻结训练的世代
-    #   Unfreeze_Epoch总训练世代
-    #   提示OOM或者显存不足请调小Batch_size
-    #------------------------------------------------------#
-    if True:
-        batch_size  = Freeze_batch_size
-        lr          = Freeze_lr
-        start_epoch = Init_Epoch
-        end_epoch   = Freeze_Epoch
+        #------------------------------------------------------#
+        #   主干特征提取网络特征通用，冻结训练可以加快训练速度
+        #   也可以在训练初期防止权值被破坏。
+        #   Init_Epoch为起始世代
+        #   Freeze_Epoch为冻结训练的世代
+        #   Unfreeze_Epoch总训练世代
+        #   提示OOM或者显存不足请调小Batch_size
+        #------------------------------------------------------#
+        if True:
+            batch_size  = Freeze_batch_size
+            lr          = Freeze_lr
+            start_epoch = Init_Epoch
+            end_epoch   = Freeze_Epoch
 
-        epoch_step          = num_train // batch_size
-        epoch_step_val      = num_val // batch_size
+            epoch_step          = num_train // batch_size
+            epoch_step_val      = num_val // batch_size
 
-        if epoch_step == 0 or epoch_step_val == 0:
-            raise ValueError('数据集过小，无法进行训练，请扩充数据集。')
+            if epoch_step == 0 or epoch_step_val == 0:
+                raise ValueError('数据集过小，无法进行训练，请扩充数据集。')
 
-        model.compile(optimizer=Adam(lr = lr), loss = MultiboxLoss(num_classes, neg_pos_ratio=3.0).compute_loss)
+            model.compile(optimizer=Adam(lr = lr), loss = MultiboxLoss(num_classes, neg_pos_ratio=3.0).compute_loss)
 
-        train_dataloader    = SSDDatasets(train_lines, input_shape, anchors, batch_size, num_classes, train = True)
-        val_dataloader      = SSDDatasets(val_lines, input_shape, anchors, batch_size, num_classes, train = False)
+            train_dataloader    = SSDDatasets(train_lines, input_shape, anchors, batch_size, num_classes, train = True)
+            val_dataloader      = SSDDatasets(val_lines, input_shape, anchors, batch_size, num_classes, train = False)
 
-        print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-        model.fit_generator(
-            generator           = train_dataloader,
-            steps_per_epoch     = epoch_step,
-            validation_data     = val_dataloader,
-            validation_steps    = epoch_step_val,
-            epochs              = end_epoch,
-            initial_epoch       = start_epoch,
-            use_multiprocessing = True if num_workers > 1 else False,
-            workers             = num_workers,
-            callbacks           = [logging, checkpoint, reduce_lr, early_stopping, loss_history]
-        )
+            print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+            model.fit_generator(
+                generator           = train_dataloader,
+                steps_per_epoch     = epoch_step,
+                validation_data     = val_dataloader,
+                validation_steps    = epoch_step_val,
+                epochs              = end_epoch,
+                initial_epoch       = start_epoch,
+                use_multiprocessing = True if num_workers > 1 else False,
+                workers             = num_workers,
+                callbacks           = [logging, checkpoint, reduce_lr, early_stopping, loss_history]
+            )
 
-    if Freeze_Train:
+    if not Freeze_Train:
+        freeze_layers = 81
         for i in range(freeze_layers): model.layers[i].trainable = True
 
-    if True:
-        batch_size  = Unfreeze_batch_size
-        lr          = Unfreeze_lr
-        start_epoch = Freeze_Epoch
-        end_epoch   = UnFreeze_Epoch
+        if True:
+            batch_size  = Unfreeze_batch_size
+            lr          = Unfreeze_lr
+            start_epoch = Init_Epoch
+            end_epoch   = UnFreeze_Epoch
 
-        epoch_step          = num_train // batch_size
-        epoch_step_val      = num_val // batch_size
+            epoch_step          = num_train // batch_size
+            epoch_step_val      = num_val // batch_size
 
-        if epoch_step == 0 or epoch_step_val == 0:
-            raise ValueError('数据集过小，无法进行训练，请扩充数据集。')
+            if epoch_step == 0 or epoch_step_val == 0:
+                raise ValueError('数据集过小，无法进行训练，请扩充数据集。')
 
-        model.compile(optimizer=Adam(lr = lr), loss = MultiboxLoss(num_classes, neg_pos_ratio=3.0).compute_loss)
+            model.compile(optimizer=Adam(lr = lr), loss = MultiboxLoss(num_classes, neg_pos_ratio=3.0).compute_loss)
 
-        train_dataloader    = SSDDatasets(train_lines, input_shape, anchors, batch_size, num_classes, train = True)
-        val_dataloader      = SSDDatasets(val_lines, input_shape, anchors, batch_size, num_classes, train = False)
+            train_dataloader    = SSDDatasets(train_lines, input_shape, anchors, batch_size, num_classes, train = True)
+            val_dataloader      = SSDDatasets(val_lines, input_shape, anchors, batch_size, num_classes, train = False)
 
-        print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
-        model.fit_generator(
-            generator           = train_dataloader,
-            steps_per_epoch     = epoch_step,
-            validation_data     = val_dataloader,
-            validation_steps    = epoch_step_val,
-            epochs              = end_epoch,
-            initial_epoch       = start_epoch,
-            use_multiprocessing = True if num_workers > 1 else False,
-            workers             = num_workers,
-            callbacks           = [logging, checkpoint, reduce_lr, early_stopping, loss_history]
-        )
+            print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+            model.fit_generator(
+                generator           = train_dataloader,
+                steps_per_epoch     = epoch_step,
+                validation_data     = val_dataloader,
+                validation_steps    = epoch_step_val,
+                epochs              = end_epoch,
+                initial_epoch       = start_epoch,
+                use_multiprocessing = True if num_workers > 1 else False,
+                workers             = num_workers,
+                callbacks           = [logging, checkpoint, reduce_lr, early_stopping, loss_history]
+            )

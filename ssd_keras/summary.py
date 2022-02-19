@@ -10,5 +10,7 @@ if __name__ == "__main__":
     model = SSD300(input_shape, num_classes)
     model.summary()
 
+    model.save('MobileNet_SSD_300.h5')
+
     for i,layer in enumerate(model.layers):
         print(i,layer.name)

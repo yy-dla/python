@@ -127,8 +127,8 @@ class SSDDatasets(keras.utils.Sequence):
         #------------------------------------------#
         #   翻转图像
         #------------------------------------------#
-        flip = self.rand()<.5
-        if flip: image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        # flip = self.rand()<.5
+        # if flip: image = image.transpose(Image.FLIP_LEFT_RIGHT)
 
         #------------------------------------------#
         #   色域扭曲
@@ -154,7 +154,7 @@ class SSDDatasets(keras.utils.Sequence):
             np.random.shuffle(box)
             box[:, [0,2]] = box[:, [0,2]]*nw/iw + dx
             box[:, [1,3]] = box[:, [1,3]]*nh/ih + dy
-            if flip: box[:, [0,2]] = w - box[:, [2,0]]
+            # if flip: box[:, [0,2]] = w - box[:, [2,0]]
             box[:, 0:2][box[:, 0:2]<0] = 0
             box[:, 2][box[:, 2]>w] = w
             box[:, 3][box[:, 3]>h] = h
