@@ -4,7 +4,7 @@ import numpy as np
 
 from utils.utils import get_classes
 
-classes_path        = 'model_data/GTSDB_classes.txt'
+classes_path        = '../model_data/GTSDB_classes.txt'
 
 trainval_percent    = 0.9
 train_percent       = 0.9
@@ -34,8 +34,8 @@ if __name__ == '__main__':
         else:
             dic[image_name] = [target]
 
-    train_file_name = 'GTSDB_train.txt'
-    val_file_name = 'GTSDB_val.txt'
+    train_file_name = '../GTSDB_train.txt'
+    val_file_name = '../GTSDB_val.txt'
 
     train_file = open(train_file_name, 'w')
     val_file = open(val_file_name, 'w')

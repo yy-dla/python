@@ -26,9 +26,11 @@ class SSD(object):
         #--------------------------------------------------------------------------#
         # "model_path"        : 'model_data/mobilenet_ssd_weights.h5',
         # "model_path"        : '../model/ssd_keras/VOC-loss3.049-val_loss2.715.h5',
-        "model_path"        : 'logs/ep072-loss3.033-val_loss2.694.h5',
+        # "model_path"        : 'logs/ep072-loss3.033-val_loss2.694.h5',
+        "model_path"        : 'logs/ep033-loss3.341-val_loss3.360.h5',
         # "classes_path"      : 'model_data/voc_classes.txt',
-        "classes_path"      : 'model_data/GTSDB_classes.txt',
+        # "classes_path"      : 'model_data/GTSDB_classes.txt',
+        "classes_path"      : 'model_data/NEU_classes.txt',
         #---------------------------------------------------------------------#
         #   用于预测的图像大小，和train时使用同一个即可
         #---------------------------------------------------------------------#

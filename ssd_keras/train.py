@@ -36,7 +36,7 @@ if __name__ == "__main__":
     #   训练前一定要修改classes_path，使其对应自己的数据集
     #--------------------------------------------------------#
     # classes_path    = 'model_data/voc_classes.txt'
-    classes_path    = 'model_data/GTSDB_classes.txt'
+    classes_path    = 'model_data/NEU_classes.txt'
     #----------------------------------------------------------------------------------------------------------------------------#
     #   权值文件的下载请看README，可以通过网盘下载。模型的 预训练权重 对不同数据集是通用的，因为特征是通用的。
     #   模型的 预训练权重 比较重要的部分是 主干特征提取网络的权值部分，用于进行特征提取。
@@ -55,8 +55,8 @@ if __name__ == "__main__":
     #   网络一般不从0开始训练，至少会使用主干部分的权值，有些论文提到可以不用预训练，主要原因是他们 数据集较大 且 调参能力优秀。
     #   如果一定要训练网络的主干部分，可以了解imagenet数据集，首先训练分类模型，分类模型的 主干部分 和该模型通用，基于此进行训练。
     #----------------------------------------------------------------------------------------------------------------------------#
-    # model_path      = '../model/mobilenet_ssd_weights.h5'
-    model_path      = '../model/GTSDB/weights.09-0.02.hdf5'
+    model_path      = '../model/mobilenet_ssd_weights.h5'
+    # model_path      = '../model/GTSDB/weights.09-0.02.hdf5'
     # model_path      = ''
 
     #------------------------------------------------------#
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     #----------------------------------------------------#
     UnFreeze_Epoch      = 100
     Unfreeze_batch_size = 16
-    Unfreeze_lr         = 1e-4
+    Unfreeze_lr         = 5e-4
     #------------------------------------------------------#
     #   是否进行冻结训练，默认先冻结主干训练后解冻训练。
     #------------------------------------------------------#
@@ -112,8 +112,10 @@ if __name__ == "__main__":
     # val_annotation_path     = '2012_val.txt'
     # train_annotation_path = 'GTSDB_train.txt'
     # val_annotation_path = 'GTSDB_val.txt'
-    train_annotation_path = 'train_gt.txt'
-    val_annotation_path = 'val_gt.txt'
+    # train_annotation_path = 'train_gt.txt'
+    # val_annotation_path = 'val_gt.txt'
+    train_annotation_path = 'NEU_train.txt'
+    val_annotation_path = 'NEU_val.txt'
 
     #----------------------------------------------------#
     #   获取classes和anchor
