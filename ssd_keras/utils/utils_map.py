@@ -275,7 +275,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
     RESULTS_FILES_PATH  = os.path.join(path, 'results')
 
     show_animation = True
-    if os.path.exists(IMG_PATH): 
+    if os.path.exists(IMG_PATH):
         for dirpath, dirnames, files in os.walk(IMG_PATH):
             if not files:
                 show_animation = False
@@ -284,7 +284,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
 
     if not os.path.exists(TEMP_FILES_PATH):
         os.makedirs(TEMP_FILES_PATH)
-        
+
     if os.path.exists(RESULTS_FILES_PATH):
         shutil.rmtree(RESULTS_FILES_PATH)
     if draw_plot:
@@ -465,10 +465,10 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                                 gt_match = obj
 
                 if show_animation:
-                    status = "NO MATCH FOUND!" 
-                    
+                    status = "NO MATCH FOUND!"
+
                 min_overlap = MINOVERLAP
-                if ovmax >= min_overlap:
+                if ovmax >= min_overlap:    # IoU > MINOVERLAP
                     if "difficult" not in gt_match:
                         if not bool(gt_match["used"]):
                             tp[idx] = 1
@@ -523,7 +523,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                     img, line_width = draw_text_in_image(img, text, (margin + line_width, v_pos), color, line_width)
 
                     font = cv2.FONT_HERSHEY_SIMPLEX
-                    if ovmax > 0: 
+                    if ovmax > 0:
                         bbgt = [ int(round(float(x))) for x in gt_match["bbox"].split() ]
                         cv2.rectangle(img,(bbgt[0],bbgt[1]),(bbgt[2],bbgt[3]),light_blue,2)
                         cv2.rectangle(img_cumulative,(bbgt[0],bbgt[1]),(bbgt[2],bbgt[3]),light_blue,2)
@@ -534,7 +534,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                     cv2.putText(img_cumulative, class_name, (bb[0],bb[1] - 5), font, 0.6, color, 1, cv2.LINE_AA)
 
                     cv2.imshow("Animation", img)
-                    cv2.waitKey(20) 
+                    cv2.waitKey(20)
                     output_img_path = RESULTS_FILES_PATH + "/images/detections_one_by_one/" + class_name + "_detection" + str(idx) + ".jpg"
                     cv2.imwrite(output_img_path, img)
                     cv2.imwrite(img_cumulative_path, img_cumulative)
@@ -543,7 +543,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
             for idx, val in enumerate(fp):
                 fp[idx] += cumsum
                 cumsum += val
-                
+
             cumsum = 0
             for idx, val in enumerate(tp):
                 tp[idx] += cumsum
@@ -561,16 +561,16 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
             F1  = np.array(rec)*np.array(prec)*2 / np.where((np.array(prec)+np.array(rec))==0, 1, (np.array(prec)+np.array(rec)))
 
             sum_AP  += ap
-            text    = "{0:.2f}%".format(ap*100) + " = " + class_name + " AP " #class_name + " AP = {0:.2f}%".format(ap*100)
+            text    = class_name + " AP = {0:.2f}%".format(ap*100) # "{0:.2f}%".format(ap*100) + " = " + class_name + " AP "
 
-            if len(prec)>0:
-                F1_text         = "{0:.2f}".format(F1[score05_idx]) + " = " + class_name + " F1 "
-                Recall_text     = "{0:.2f}%".format(rec[score05_idx]*100) + " = " + class_name + " Recall "
-                Precision_text  = "{0:.2f}%".format(prec[score05_idx]*100) + " = " + class_name + " Precision "
+            if len(prec) > 0:
+                F1_text         = class_name + " F1 " + " = " + "{0:.2f}".format(F1[score05_idx])
+                Recall_text     = class_name + " Recall " + " = " + "{0:.2f}%".format(rec[score05_idx]*100)
+                Precision_text  = class_name + " Precision " + " = " + "{0:.2f}%".format(prec[score05_idx]*100)
             else:
-                F1_text         = "0.00" + " = " + class_name + " F1 " 
-                Recall_text     = "0.00%" + " = " + class_name + " Recall " 
-                Precision_text  = "0.00%" + " = " + class_name + " Precision " 
+                F1_text         = class_name + " F1 " + " = " + "0.00"
+                Recall_text     = class_name + " Recall " + " = " + "0.00%"
+                Precision_text  = class_name + " Precision "  + " = " + "0.00%"
 
             rounded_prec    = [ '%.2f' % elem for elem in prec ]
             rounded_rec     = [ '%.2f' % elem for elem in rec ]
@@ -600,7 +600,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                 plt.ylabel('Precision')
                 axes = plt.gca()
                 axes.set_xlim([0.0,1.0])
-                axes.set_ylim([0.0,1.05]) 
+                axes.set_ylim([0.0,1.05])
                 fig.savefig(RESULTS_FILES_PATH + "/AP/" + class_name + ".png")
                 plt.cla()
 
@@ -633,7 +633,7 @@ def get_map(MINOVERLAP, draw_plot, path = './map_out'):
                 axes.set_ylim([0.0,1.05])
                 fig.savefig(RESULTS_FILES_PATH + "/Precision/" + class_name + ".png")
                 plt.cla()
-                
+
         if show_animation:
             cv2.destroyAllWindows()
 
@@ -802,7 +802,7 @@ def preprocess_gt(gt_path, class_names):
         image['id']        = str(image_id)
 
         for line in lines_list:
-            difficult = 0 
+            difficult = 0
             if "difficult" in line:
                 line_split  = line.split()
                 left, top, right, bottom, _difficult = line_split[-5:]
@@ -818,7 +818,7 @@ def preprocess_gt(gt_path, class_names):
                 for name in line_split[:-4]:
                     class_name += name + " "
                 class_name = class_name[:-1]
-            
+
             left, top, right, bottom = float(left), float(top), float(right), float(bottom)
             cls_id  = class_names.index(class_name) + 1
             bbox    = [left, top, right - left, bottom - top, difficult, str(image_id), cls_id, (right - left) * (bottom - top) - 10.0]
@@ -870,11 +870,11 @@ def preprocess_dr(dr_path, class_names):
             result["score"]         = float(confidence)
             results.append(result)
     return results
- 
+
 def get_coco_map(class_names, path):
     from pycocotools.coco import COCO
     from pycocotools.cocoeval import COCOeval
-    
+
     GT_PATH     = os.path.join(path, 'ground-truth')
     DR_PATH     = os.path.join(path, 'detection-results')
     COCO_PATH   = os.path.join(path, 'coco_eval')
@@ -895,7 +895,7 @@ def get_coco_map(class_names, path):
 
     cocoGt      = COCO(GT_JSON_PATH)
     cocoDt      = cocoGt.loadRes(DR_JSON_PATH)
-    cocoEval    = COCOeval(cocoGt, cocoDt, 'bbox') 
+    cocoEval    = COCOeval(cocoGt, cocoDt, 'bbox')
     cocoEval.evaluate()
     cocoEval.accumulate()
     cocoEval.summarize()

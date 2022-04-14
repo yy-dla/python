@@ -55,9 +55,9 @@ if __name__ == "__main__":
     #   网络一般不从0开始训练，至少会使用主干部分的权值，有些论文提到可以不用预训练，主要原因是他们 数据集较大 且 调参能力优秀。
     #   如果一定要训练网络的主干部分，可以了解imagenet数据集，首先训练分类模型，分类模型的 主干部分 和该模型通用，基于此进行训练。
     #----------------------------------------------------------------------------------------------------------------------------#
-    model_path      = '../model/mobilenet_ssd_weights.h5'
+    # model_path      = '../model/mobilenet_ssd_weights.h5'
     # model_path      = '../model/GTSDB/weights.09-0.02.hdf5'
-    # model_path      = ''
+    model_path      = '../model/NEU/ep033-loss3.341-val_loss3.360.h5'
 
     #------------------------------------------------------#
     #   输入的shape大小
@@ -184,7 +184,7 @@ if __name__ == "__main__":
 
             model.compile(optimizer=Adam(lr = lr), loss = MultiboxLoss(num_classes, neg_pos_ratio=3.0).compute_loss)
 
-            train_dataloader    = SSDDatasets(train_lines, input_shape, anchors, batch_size, num_classes, train = True)
+            train_dataloader    = SSDDatasets(train_lines, input_shape, anchors, batch_size, num_classes, train = False)
             val_dataloader      = SSDDatasets(val_lines, input_shape, anchors, batch_size, num_classes, train = False)
 
             print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))

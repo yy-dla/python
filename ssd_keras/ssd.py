@@ -26,11 +26,11 @@ class SSD(object):
         #--------------------------------------------------------------------------#
         # "model_path"        : 'model_data/mobilenet_ssd_weights.h5',
         # "model_path"        : '../model/ssd_keras/VOC-loss3.049-val_loss2.715.h5',
-        # "model_path"        : 'logs/ep072-loss3.033-val_loss2.694.h5',
-        "model_path"        : 'logs/ep033-loss3.341-val_loss3.360.h5',
+        "model_path"        : '../model/GTSDB/ep072-loss3.033-val_loss2.694.h5',
+        # "model_path"        : 'logs/ep033-loss3.341-val_loss3.360.h5',
         # "classes_path"      : 'model_data/voc_classes.txt',
-        # "classes_path"      : 'model_data/GTSDB_classes.txt',
-        "classes_path"      : 'model_data/NEU_classes.txt',
+        "classes_path"      : 'model_data/GTSDB_classes.txt',
+        # "classes_path"      : 'model_data/NEU_classes.txt',
         #---------------------------------------------------------------------#
         #   用于预测的图像大小，和train时使用同一个即可
         #---------------------------------------------------------------------#
@@ -210,14 +210,14 @@ class SSD(object):
         tact_time = (t2 - t1) / test_interval
         return tact_time
 
-    def get_map_txt(self, image_id, image, class_names, map_out_path):
+    def get_map_txt(self, image_id, image, class_names, map_out_path, equalizeHist=False):
         f = open(os.path.join(map_out_path, "detection-results/"+image_id+".txt"),"w") 
         image_shape = np.array(np.shape(image)[0:2])
         #---------------------------------------------------------#
         #   在这里将图像转换成RGB图像，防止灰度图在预测时报错。
         #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
         #---------------------------------------------------------#
-        image       = cvtColor(image)
+        image       = cvtColor(image, equalizeHist=equalizeHist)
         #---------------------------------------------------------#
         #   给图像增加灰条，实现不失真的resize
         #   也可以直接resize进行识别

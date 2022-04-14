@@ -9,6 +9,7 @@
 /ssd_keras/VOCdevkit/
 
 /ssd_keras/requirements.txt
+/ssd_keras/map_out/
 
 *.pkl
 *.h5

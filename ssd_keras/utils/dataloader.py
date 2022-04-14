@@ -60,7 +60,7 @@ class SSDDatasets(keras.utils.Sequence):
         #   读取图像并转换成RGB图像
         #------------------------------#
         image   = Image.open(line[0])
-        image   = cvtColor(image)
+        image   = cvtColor(image, equalizeHist=True)
         #------------------------------#
         #   获得图像的高宽与目标高宽
         #------------------------------#
@@ -127,25 +127,26 @@ class SSDDatasets(keras.utils.Sequence):
         #------------------------------------------#
         #   翻转图像
         #------------------------------------------#
-        # flip = self.rand()<.5
-        # if flip: image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        flip = self.rand()<.5
+        if flip: image = image.transpose(Image.FLIP_LEFT_RIGHT)
 
         #------------------------------------------#
         #   色域扭曲
         #------------------------------------------#
-        hue = self.rand(-hue, hue)
-        sat = self.rand(1, sat) if self.rand()<.5 else 1/self.rand(1, sat)
-        val = self.rand(1, val) if self.rand()<.5 else 1/self.rand(1, val)
-        x = cv2.cvtColor(np.array(image,np.float32)/255, cv2.COLOR_RGB2HSV)
-        x[..., 0] += hue*360
-        x[..., 0][x[..., 0]>1] -= 1
-        x[..., 0][x[..., 0]<0] += 1
-        x[..., 1] *= sat
-        x[..., 2] *= val
-        x[x[:,:, 0]>360, 0] = 360
-        x[:, :, 1:][x[:, :, 1:]>1] = 1
-        x[x<0] = 0
-        image_data = cv2.cvtColor(x, cv2.COLOR_HSV2RGB)*255 # numpy array, 0 to 1
+        # hue = self.rand(-hue, hue)
+        # sat = self.rand(1, sat) if self.rand()<.5 else 1/self.rand(1, sat)
+        # val = self.rand(1, val) if self.rand()<.5 else 1/self.rand(1, val)
+        # x = cv2.cvtColor(np.array(image,np.float32)/255, cv2.COLOR_RGB2HSV)
+        # x[..., 0] += hue*360
+        # x[..., 0][x[..., 0]>1] -= 1
+        # x[..., 0][x[..., 0]<0] += 1
+        # x[..., 1] *= sat
+        # x[..., 2] *= val
+        # x[x[:,:, 0]>360, 0] = 360
+        # x[:, :, 1:][x[:, :, 1:]>1] = 1
+        # x[x<0] = 0
+        # image_data = cv2.cvtColor(x, cv2.COLOR_HSV2RGB)*255 # numpy array, 0 to 1
+        image_data = np.asarray(image)
 
         #---------------------------------#
         #   对真实框进行调整
